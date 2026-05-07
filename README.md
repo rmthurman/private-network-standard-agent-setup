@@ -395,6 +395,175 @@ After deploying your initial AI Foundry setup using `main.bicep`, you can add ad
 1. ✅ **Existing AI Foundry deployment** completed using `main.bicep`
 2. ✅ **Azure CLI** installed and logged in
 3. ✅ **Proper permissions** on the resource group and existing resources
+
+---
+
+# Adding a Project with Capability Host (Terraform)
+
+The `add-project-tf/` directory contains a fully self-contained Terraform module that adds a new project—including connections and a capability host—to an **existing** AI Foundry hub. No changes to the original hub deployment are required.
+
+## What it creates
+
+The module provisions resources in this exact order:
+
+| Step | Resource | Notes |
+|------|----------|-------|
+| 1 | **AI Foundry Project** | System-assigned managed identity |
+| 2 | **3 project connections** | CosmosDB, Storage, AI Search — AAD auth |
+| 3 | **Pre-cap-host RBAC** | Cosmos DB Operator, Storage Blob Data Contributor, Search Index Data Contributor, Search Service Contributor on the project identity |
+| 4 | *(60 s wait)* | Allows RBAC to propagate through Entra ID |
+| 5 | **Capability host** | `capabilityHostKind: Agents`, wires all 3 connections |
+| 6 | **Post-cap-host data-plane RBAC** | CosmosDB SQL Built-in Data Contributor scoped to `enterprise_memory` DB; Storage Blob Data Owner scoped via ABAC condition to project-specific containers only |
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `add-project-tf/main.tf` | All resources: project, connections, RBAC, capability host |
+| `add-project-tf/variables.tf` | Input variable definitions |
+| `add-project-tf/locals.tf` | ARM ID construction, connection name scoping, workspace GUID |
+| `add-project-tf/outputs.tf` | Project ID, principal ID, workspace GUID, capability host ID |
+| `add-project-tf/providers.tf` | azapi + azurerm provider aliases |
+| `add-project-tf/versions.tf` | Provider version pins |
+| `add-project-tf/terraform.tfvars` | Example values — copy and fill in for each new project |
+
+## Usage
+
+### 1. Fill in `terraform.tfvars`
+
+```hcl
+# Existing AI Foundry hub
+existing_account_name   = "<your-account-name>"       # e.g. foundrype4cey
+account_resource_group  = "<your-rg>"                 # e.g. rg-foundry-pe-westus3
+account_subscription_id = "<your-subscription-id>"
+
+# New project
+project_name          = "myproject"          # must be unique within the hub
+project_display_name  = "My Project"
+project_cap_host_name = "caphostmyproject"
+location              = "westus3"            # must match the hub region
+
+# BYO Cosmos DB (thread storage)
+existing_cosmosdb_name  = "<cosmosdb-name>"
+cosmosdb_resource_group = "<rg>"
+
+# BYO Storage Account (file storage)
+existing_storage_name  = "<storage-name>"
+storage_resource_group = "<rg>"
+
+# BYO AI Search (vector store — cross-region is supported)
+existing_ai_search_name  = "<search-name>"
+ai_search_resource_group = "<rg>"
+```
+
+### 2. Deploy
+
+```bash
+cd add-project-tf
+terraform init
+terraform apply
+```
+
+### 3. Verify the capability host
+
+```bash
+az rest --method get \
+  --url "https://management.azure.com/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.CognitiveServices/accounts/<account>/projects/<project>/capabilityHosts/<caphost>?api-version=2025-04-01-preview" \
+  --query "{name:name, state:properties.provisioningState, kind:properties.capabilityHostKind}" \
+  -o json
+```
+
+Expected: `"state": "Succeeded"`, `"kind": "Agents"`
+
+## Provider requirements
+
+```hcl
+azapi   ~> 2.5
+azurerm ~> 4.37
+terraform >= 1.10
+```
+
+## Known issues
+
+### `SubnetAlreadyInUse` on second project
+
+When a capability host is created it provisions a Container Apps environment on the agent subnet. That subnet gets a `serviceAssociationLink` (`legionservicelink`) that **persists even after deleting the AI account**. A second project on the same hub will fail with:
+
+> `The subnet '...' is already in use.`
+
+**Fix:** Create a new `/24` subnet with `Microsoft.App/environments` delegation in your VNet before running `terraform apply` for the second project. The platform automatically selects a free delegated subnet.
+
+### RBAC propagation failures
+
+If Entra ID is slow to replicate the new project identity, the capability host creation may fail with a permissions error. Increase the `time_sleep.wait_rbac` duration in `main.tf` from `60s` to `90s` or `120s`.
+
+---
+
+# Accessing a Private Foundry Deployment from a VPN Client
+
+When the AI Foundry hub has public network access disabled, browsers resolve the Foundry FQDNs to public IPs even when a VPN is connected — because the OS DNS client sends queries to the adapter with the lowest interface metric (usually Wi-Fi), not the VPN adapter.
+
+## Symptoms
+
+- VPN is connected and `172.16.x.x` address is assigned
+- `ai.azure.com` shows **"Private network access required"**
+- `Resolve-DnsName foundrype4cey.services.ai.azure.com` returns a public IP
+
+## Root cause
+
+Windows DNS queries use interface metric order. If the VPN adapter (metric 55) loses to Wi-Fi (metric 25), the Azure DNS Private Resolver at `10.0.1.132` is never consulted — so the `privatelink.*` private DNS zone records are never returned.
+
+## Fix — hosts file entries (most reliable)
+
+Add static entries mapping each private endpoint FQDN to its private IP. These bypass DNS entirely and survive interface metric changes.
+
+```powershell
+# Run as Administrator
+Add-Content C:\Windows\System32\drivers\etc\hosts @"
+
+# Foundry Private Endpoints - westus3
+10.200.3.14    foundrype4cey.services.ai.azure.com foundrype4cey.privatelink.services.ai.azure.com
+10.200.3.13    foundrype4cey.openai.azure.com foundrype4cey.privatelink.openai.azure.com
+10.200.3.12    foundrype4cey.cognitiveservices.azure.com foundrype4cey.privatelink.cognitiveservices.azure.com
+10.200.3.10    foundrypesqxkstorage.blob.core.windows.net foundrypesqxkstorage.privatelink.blob.core.windows.net
+10.200.3.4     foundrypesqxkcosmosdb.documents.azure.com foundrypesqxkcosmosdb.privatelink.documents.azure.com
+10.200.3.11    foundrypesearch.search.windows.net foundrypesearch.privatelink.search.windows.net
+"@
+Clear-DnsClientCache
+```
+
+The helper script `add-hosts-entries.ps1` in this repository does this automatically (run as Administrator).
+
+## Getting the correct private IPs
+
+```bash
+az network private-dns record-set a show \
+  --resource-group <rg-with-dns-zone> \
+  --zone-name privatelink.services.ai.azure.com \
+  --name <account-name> \
+  --query "aRecords[0].ipv4Address" -o tsv
+```
+
+## Alternative — NRPT rules
+
+For a DNS-based solution that doesn't require editing the hosts file, add Name Resolution Policy Table rules to force all `privatelink.*` queries to the Azure DNS resolver:
+
+```powershell
+$dnsResolver = "10.0.1.132"   # Azure DNS Private Resolver inbound endpoint IP
+@(
+    ".privatelink.services.ai.azure.com",
+    ".privatelink.openai.azure.com",
+    ".privatelink.cognitiveservices.azure.com",
+    ".privatelink.blob.core.windows.net",
+    ".privatelink.documents.azure.com",
+    ".privatelink.search.windows.net"
+) | ForEach-Object {
+    Add-DnsClientNrptRule -Namespace $_ -NameServers $dnsResolver
+}
+Clear-DnsClientCache
+```
+
+> **Note:** NRPT rules are bypassed by `Resolve-DnsName` (which uses the DNS client API directly) but are respected by all browser and application traffic.
 4. ✅ **Resource names** from your existing deployment
 
 ## Step-by-Step Guide

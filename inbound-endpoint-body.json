@@ -1,0 +1,1 @@
+{"location":"westus3","properties":{"ipConfigurations":[{"privateIpAllocationMethod":"Dynamic","subnet":{"id":"/subscriptions/5834bd7f-f5ad-42c9-8923-48c60bcbef69/resourceGroups/rg-hub-spoke-westus3/providers/Microsoft.Network/virtualNetworks/vnet-westus3-hub/subnets/snet-dns-resolver-inbound"}}]}}

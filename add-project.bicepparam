@@ -1,6 +1,6 @@
 using './add-project.bicep'
 
-param location = 'westus'
+param location = 'westus3'
 
 // New project details
 param projectName = 'secondproject'
@@ -8,22 +8,20 @@ param projectDescription = 'Second AI Foundry project with network secured deplo
 param displayName = 'Second Project'
 param projectCapHost = 'caphostsecond'
 
-// Existing AI Services account details (from your original deployment)
-// You'll need to get these from your existing deployment
-param existingAccountName = '' // Replace with your actual account name
-param accountResourceGroupName = '' // Your resource group
-param accountSubscriptionId = ''
+// Existing AI Services account (foundrype4cey in rg-foundry-pe-westus3)
+param existingAccountName = 'foundrype4cey'
+param accountResourceGroupName = 'rg-foundry-pe-westus3'
+param accountSubscriptionId = '5834bd7f-f5ad-42c9-8923-48c60bcbef69'
 
-// Existing shared resources (from your original deployment)
-// You'll need to get these from your existing deployment outputs
-param existingAiSearchName = '' // Replace with your actual search service name
-param aiSearchResourceGroupName = '' // Your resource group
-param aiSearchSubscriptionId = ''
+// Existing shared resources (all from original sqxk/4cey deployment)
+param existingAiSearchName = 'foundrypesearch'
+param aiSearchResourceGroupName = 'rg-foundry-pe-westus3'
+param aiSearchSubscriptionId = '5834bd7f-f5ad-42c9-8923-48c60bcbef69'
 
-param existingStorageName = '' // Replace with your actual storage account name
-param storageResourceGroupName = '' // Your resource group
-param storageSubscriptionId = ''
+param existingStorageName = 'foundrypesqxkstorage'
+param storageResourceGroupName = 'rg-foundry-pe-westus3'
+param storageSubscriptionId = '5834bd7f-f5ad-42c9-8923-48c60bcbef69'
 
-param existingCosmosDBName = '' // Replace with your actual Cosmos DB name
-param cosmosDBResourceGroupName = '' // Your resource group
-param cosmosDBSubscriptionId = ''
+param existingCosmosDBName = 'foundrypesqxkcosmosdb'
+param cosmosDBResourceGroupName = 'rg-foundry-pe-westus3'
+param cosmosDBSubscriptionId = '5834bd7f-f5ad-42c9-8923-48c60bcbef69'

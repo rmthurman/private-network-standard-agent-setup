@@ -1,0 +1,43 @@
+<AzVpnProfile xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.datacontract.org/2004/07/">
+  <any xmlns:d2p1="http://schemas.datacontract.org/2004/07/System.Xml" i:nil="true" />
+  <clientauth>
+    <aad i:nil="true" />
+    <cert>
+      <hash i:nil="true" />
+      <issuer>3fa1f2582b656f377572f2aff9a98a875218e478</issuer>
+    </cert>
+    <type>cert</type>
+    <usernamepass i:nil="true" />
+  </clientauth>
+  <clientconfig>
+    <dnsservers>
+      <DnsServerEntry>
+        <dnsserver>10.0.1.132</dnsserver>
+      </DnsServerEntry>
+    </dnsservers>
+    <excluderoutes i:nil="true" />
+    <includeroutes i:nil="true" />
+  </clientconfig>
+  <name>vnet-westus3-hub</name>
+  <protocolconfig>
+    <sslprotocolConfig>
+      <transportprotocol>tcp</transportprotocol>
+    </sslprotocolConfig>
+  </protocolconfig>
+  <serverlist>
+    <ServerEntry>
+      <displayname i:nil="true" />
+      <fqdn>azuregateway-e9f80043-0c56-4361-8485-f50d091ab563-5191361aa1aa.vpn.azure.com</fqdn>
+    </ServerEntry>
+  </serverlist>
+  <servervalidation>
+    <Cert>
+      <hash>DF3C24F9BFD666761B268073FE06D1CC8D4F82A4</hash>
+      <issuer i:nil="true" />
+    </Cert>
+    <serversecret>1c8af265a177d06d5f60b80b907d550bc4f1a18da019d1f8590338b5a0ff3317e62fa46c4ecc5d03690128d1485ba24e133be17882e2c7de866f52ae5c6b74e49204f43c4ca9bd197def500f290ee103d52f53aa1d14fb6552cc505b6a114b03934813f907966d3ec31d66dcb15b55499d98a5de59f56732f579e93403c8e7239750df2aa3e0feabb4b48efa4afb934bb2b37696488553b43eff310ce54eac5703bf88f967a144b9550f7fec452589d61e471ee50f1e29222fe6a5194bf975c50940e1b194294752664e800582c984a0c676360ffb967333f686a7bd7ab33e081b4a872c3f7c0867ab89b2ec0d64437696a564c0704decd84db3fc0be1965114</serversecret>
+    <type>cert</type>
+    <usepinnedroot>true</usepinnedroot>
+  </servervalidation>
+  <version>1</version>
+</AzVpnProfile>
