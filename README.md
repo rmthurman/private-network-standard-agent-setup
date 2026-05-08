@@ -475,6 +475,21 @@ az rest --method get \
 
 Expected: `"state": "Succeeded"`, `"kind": "Agents"`
 
+### 4. List projects and their capability hosts
+
+```bash
+az rest \
+  --method get \
+  --url "https://management.azure.com/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.CognitiveServices/accounts/$ACCOUNT_NAME/projects?api-version=2025-06-01" \
+  --query "value[].id" -o tsv |
+while read -r id; do
+  echo "$(basename "$id"): $(az rest \
+    --method get \
+    --url "https://management.azure.com${id}/capabilityHosts?api-version=2025-06-01" \
+    --query "value[].name" -o tsv | paste -sd ', ' -)"
+done
+```
+
 ## Provider requirements
 
 ```hcl
