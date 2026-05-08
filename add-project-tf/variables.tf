@@ -39,6 +39,12 @@ variable "project_cap_host_name" {
   default     = "caphostproj"
 }
 
+variable "connection_name_suffix" {
+  description = "Optional suffix appended to connection names to avoid collisions (e.g. '-tf' or '-mei')"
+  type        = string
+  default     = ""
+}
+
 variable "location" {
   description = "Azure region for the project. Must match the region of the existing AI Foundry account"
   type        = string
@@ -49,6 +55,12 @@ variable "location" {
 variable "existing_cosmosdb_name" {
   description = "Name of the existing Cosmos DB account to use for agent thread storage"
   type        = string
+}
+
+variable "cosmosdb_location" {
+  description = "Azure region for the existing Cosmos DB account (defaults to project location)"
+  type        = string
+  default     = ""
 }
 
 variable "cosmosdb_resource_group" {
@@ -69,6 +81,12 @@ variable "existing_storage_name" {
   type        = string
 }
 
+variable "storage_location" {
+  description = "Azure region for the existing Storage account (defaults to project location)"
+  type        = string
+  default     = ""
+}
+
 variable "storage_resource_group" {
   description = "Resource group name containing the existing Storage account"
   type        = string
@@ -85,6 +103,12 @@ variable "storage_subscription_id" {
 variable "existing_ai_search_name" {
   description = "Name of the existing Azure AI Search service to use as the vector store"
   type        = string
+}
+
+variable "ai_search_location" {
+  description = "Azure region for the existing AI Search service (defaults to project location)"
+  type        = string
+  default     = ""
 }
 
 variable "ai_search_resource_group" {

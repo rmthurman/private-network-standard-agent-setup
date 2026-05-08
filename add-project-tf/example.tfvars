@@ -10,6 +10,7 @@ project_name          = ""   # e.g. "secondproject"  (must be unique within the 
 project_display_name  = ""   # e.g. "Second Project"
 project_description   = "AI Foundry project with network-secured Agent capability host"
 project_cap_host_name = "caphostproj"
+# connection_name_suffix = "-tf"  # Optional suffix to avoid connection name collisions
 
 # Azure region — must match the existing AI Foundry account's region
 location = ""   # e.g. "westus"
@@ -17,14 +18,17 @@ location = ""   # e.g. "westus"
 # Existing Cosmos DB account (BYO thread storage)
 existing_cosmosdb_name  = ""   # e.g. "myfoundrycosmosdb"
 cosmosdb_resource_group = ""   # e.g. "my-foundry-rg"
+# cosmosdb_location        = ""  # Uncomment if Cosmos DB is in a different region
 # cosmosdb_subscription_id = ""  # Uncomment if in a different subscription
 
 # Existing Storage account (BYO file storage)
 existing_storage_name  = ""   # e.g. "myfoundrystorage"
 storage_resource_group = ""   # e.g. "my-foundry-rg"
+# storage_location        = ""  # Uncomment if Storage is in a different region
 # storage_subscription_id = ""  # Uncomment if in a different subscription
 
 # Existing AI Search service (BYO vector store)
 existing_ai_search_name  = ""   # e.g. "myfoundrysearch"
 ai_search_resource_group = ""   # e.g. "my-foundry-rg"
+# ai_search_location        = ""  # Uncomment if AI Search is in a different region
 # ai_search_subscription_id = ""  # Uncomment if in a different subscription

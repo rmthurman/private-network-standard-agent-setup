@@ -6,7 +6,7 @@
 resource "azapi_resource" "ai_foundry_project" {
   provider = azapi.workload_subscription
 
-  type                      = "Microsoft.CognitiveServices/accounts/projects@2025-06-01"
+  type                      = "Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview"
   name                      = var.project_name
   parent_id                 = local.account_id
   location                  = var.location
@@ -60,7 +60,7 @@ resource "azapi_resource" "conn_cosmosdb" {
       metadata = {
         ApiType    = "Azure"
         ResourceId = local.cosmosdb_id
-        location   = var.location
+        location   = local.cosmosdb_location
       }
     }
   }
@@ -84,7 +84,7 @@ resource "azapi_resource" "conn_storage" {
       metadata = {
         ApiType    = "Azure"
         ResourceId = local.storage_id
-        location   = var.location
+        location   = local.storage_location
       }
     }
   }
@@ -109,7 +109,7 @@ resource "azapi_resource" "conn_aisearch" {
         ApiType    = "Azure"
         ApiVersion = "2025-05-01-preview"
         ResourceId = local.ai_search_id
-        location   = var.location
+        location   = local.ai_search_location
       }
     }
   }
