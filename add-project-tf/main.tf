@@ -47,14 +47,14 @@ resource "azapi_resource" "conn_cosmosdb" {
 
   depends_on = [azapi_resource.ai_foundry_project]
 
-  type                      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01"
+  type                      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-04-01-preview"
   name                      = local.cosmosdb_conn_name
   parent_id                 = azapi_resource.ai_foundry_project.id
   schema_validation_enabled = false
 
   body = {
     properties = {
-      category = "CosmosDb"
+      category = "CosmosDB"
       target   = "https://${var.existing_cosmosdb_name}.documents.azure.com:443/"
       authType = "AAD"
       metadata = {
@@ -71,7 +71,7 @@ resource "azapi_resource" "conn_storage" {
 
   depends_on = [azapi_resource.ai_foundry_project]
 
-  type                      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01"
+  type                      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-04-01-preview"
   name                      = local.storage_conn_name
   parent_id                 = azapi_resource.ai_foundry_project.id
   schema_validation_enabled = false
@@ -95,7 +95,7 @@ resource "azapi_resource" "conn_aisearch" {
 
   depends_on = [azapi_resource.ai_foundry_project]
 
-  type                      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01"
+  type                      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-04-01-preview"
   name                      = local.ai_search_conn_name
   parent_id                 = azapi_resource.ai_foundry_project.id
   schema_validation_enabled = false
